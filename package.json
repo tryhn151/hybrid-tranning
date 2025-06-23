@@ -32,9 +32,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/[your-username]/hybrid-tranning.git"
+    "url": "https://github.com/tryhn151/hybrid-tranning.git"
   },
-  "homepage": "https://[your-username].github.io/hybrid-tranning/",
+  "homepage": "https://tryhn151.github.io/hybrid-tranning/",
   "browserslist": [
     "defaults",
     "not IE 11",

@@ -4,8 +4,8 @@
 
 ## 🚀 Live Demo
 
-- **Production:** `https://[your-username].github.io/hybrid-tranning/`
-- **GitHub Repository:** `https://github.com/[your-username]/hybrid-tranning`
+- **Production:** `https://tryhn151.github.io/hybrid-tranning/`
+- **GitHub Repository:** `https://github.com/tryhn151/hybrid-tranning`
 
 ## 📱 Tính Năng PWA
 
@@ -42,7 +42,7 @@ hybrid-tranning/
 
 ```bash
 # Clone repository
-git clone https://github.com/[your-username]/hybrid-tranning.git
+git clone https://github.com/tryhn151/hybrid-tranning.git
 cd hybrid-tranning
 
 # Tạo branch chính (nếu chưa có)
