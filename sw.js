@@ -4,14 +4,14 @@ const DYNAMIC_CACHE = 'dynamic-v2.1';
 
 // Files to cache immediately
 const STATIC_FILES = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon-72x72.png',
-  '/icons/icon-96x96.png',
-  '/icons/icon-144x144.png',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
+  '/hybrid-tranning/',
+  '/hybrid-tranning/index.html',
+  '/hybrid-tranning/manifest.json',
+  '/hybrid-tranning/icons/icon-72x72.png',
+  '/hybrid-tranning/icons/icon-96x96.png',
+  '/hybrid-tranning/icons/icon-144x144.png',
+  '/hybrid-tranning/icons/icon-192x192.png',
+  '/hybrid-tranning/icons/icon-512x512.png',
   // External CDN resources
   'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/chart.js',
@@ -229,8 +229,8 @@ self.addEventListener('push', event => {
   
   const options = {
     body: event.data ? event.data.text() : 'Đến giờ tập rồi! 💪',
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/icon-72x72.png',
+    icon: '/hybrid-tranning/icons/icon-192x192.png',
+    badge: '/hybrid-tranning/icons/icon-72x72.png',
     vibrate: [200, 100, 200],
     data: {
       dateOfArrival: Date.now(),
@@ -240,12 +240,12 @@ self.addEventListener('push', event => {
       {
         action: 'explore',
         title: 'Bắt đầu tập',
-        icon: '/icons/icon-96x96.png'
+        icon: '/hybrid-tranning/icons/icon-96x96.png'
       },
       {
         action: 'close',
         title: 'Đóng',
-        icon: '/icons/icon-96x96.png'
+        icon: '/hybrid-tranning/icons/icon-96x96.png'
       }
     ]
   };
@@ -262,14 +262,14 @@ self.addEventListener('notificationclick', event => {
 
   if (event.action === 'explore') {
     event.waitUntil(
-      clients.openWindow('/?notification=workout')
+      clients.openWindow('/hybrid-tranning/?notification=workout')
     );
   } else if (event.action === 'close') {
     // Just close the notification
   } else {
     // Default action - open the app
     event.waitUntil(
-      clients.openWindow('/')
+      clients.openWindow('/hybrid-tranning/')
     );
   }
 });

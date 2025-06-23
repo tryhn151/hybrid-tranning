@@ -2,12 +2,12 @@
   "name": "Lộ Trình Vận Động Viên Hybrid",
   "short_name": "Hybrid Training",
   "description": "Chương trình tập luyện hybrid kết hợp gym và chạy marathon 16 tuần",
-  "start_url": "/",
+  "start_url": "/hybrid-tranning/",
   "display": "standalone",
   "background_color": "#F8F7F4",
   "theme_color": "#4A6C6F",
   "orientation": "portrait-primary",
-  "scope": "/",
+  "scope": "/hybrid-tranning/",
   "lang": "vi",
   "categories": ["health", "fitness", "sports", "lifestyle"],
   "icons": [
@@ -55,14 +55,14 @@
       "name": "Theo dõi Progress",
       "short_name": "Progress",
       "description": "Xem tiến độ training",
-      "url": "/?shortcut=progress",
+      "url": "/hybrid-tranning/?shortcut=progress",
       "icons": [{ "src": "icons/icon-96x96.png", "sizes": "96x96" }]
     },
     {
       "name": "Lịch tập hôm nay",
       "short_name": "Hôm nay",
       "description": "Lịch tập hôm nay",
-      "url": "/?shortcut=today",
+      "url": "/hybrid-tranning/?shortcut=today",
       "icons": [{ "src": "icons/icon-96x96.png", "sizes": "96x96" }]
     }
   ],
