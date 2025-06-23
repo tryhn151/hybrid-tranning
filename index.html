@@ -2,13 +2,39 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Bảng Điều Khiển Vận Động Viên Hybrid</title>
     
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#4A6C6F"/>
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <meta name="theme-color" content="#4A6C6F">
+    <meta name="background-color" content="#F8F7F4">
     <link rel="manifest" href="manifest.json">
+    
+    <!-- Icons cho tất cả devices -->
+    <link rel="icon" type="image/svg+xml" sizes="72x72" href="icons/icon-72x72.png">
+    <link rel="icon" type="image/svg+xml" sizes="96x96" href="icons/icon-96x96.png">
+    <link rel="icon" type="image/svg+xml" sizes="144x144" href="icons/icon-144x144.png">
+    <link rel="icon" type="image/svg+xml" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="icon" type="image/svg+xml" sizes="512x512" href="icons/icon-512x512.png">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="72x72" href="icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="icons/icon-96x96.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
+    
+    <!-- PWA Meta Tags bổ sung -->
+    <meta name="description" content="Chương trình tập luyện hybrid kết hợp gym và chạy marathon 16 tuần">
+    <meta name="keywords" content="fitness, gym, marathon, hybrid training, workout, running">
+    <meta name="author" content="Hybrid Training Team">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Hybrid Training">
+    <meta name="msapplication-TileColor" content="#4A6C6F">
+    <meta name="msapplication-TileImage" content="icons/icon-144x144.png">
+    <meta name="application-name" content="Hybrid Training">
+    <meta name="format-detection" content="telephone=no">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -118,6 +144,49 @@
             color: #4A6C6F;
             border-color: #4A6C6F;
         }
+        
+        /* PWA Styles */
+        .pwa-mode {
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        .pwa-mode header {
+            padding-top: calc(1rem + env(safe-area-inset-top));
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .nav-item {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.875rem;
+            }
+            
+            .card:hover {
+                transform: none; /* Disable hover effects on mobile */
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Touch feedback */
+        .nav-item:active, .exercise-item:active, button:active {
+            transform: scale(0.95);
+            transition: transform 0.1s ease;
+        }
+        
+        /* Offline indicator */
+        .offline-mode {
+            filter: grayscale(0.3);
+        }
+        
+        /* Install banner animation */
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -141,7 +210,7 @@
         <main>
             <!-- DASHBOARD VIEW -->
             <section id="view-dashboard">
-                 <h2 class="section-title mb-6">Bảng Điều Khiển</h2>
+                <h2 class="section-title mb-6">Bảng Điều Khiển</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="md:col-span-2 lg:col-span-3 p-6 card bg-gradient-to-br from-teal-50 to-[#E0E7E9]">
                         <h3 class="text-2xl font-bold text-gray-800 mb-4">Kế Hoạch Hôm Nay (<span id="today-date"></span>)</h3>
@@ -198,7 +267,7 @@
 
             <!-- NUTRITION VIEW -->
             <section id="view-nutrition" class="hidden">
-                 <h2 class="section-title mb-6">Kế Hoạch Dinh Dưỡng</h2>
+                <h2 class="section-title mb-6">Kế Hoạch Dinh Dưỡng</h2>
                  <p class="mb-8 text-gray-700 max-w-4xl">Dinh dưỡng là nền tảng cho sự phục hồi và phát triển. Kế hoạch này tập trung vào việc nạp đủ năng lượng (~3000 kcal) với tỷ lệ dinh dưỡng đa lượng tối ưu (50% Carb, 30% Protein, 20% Fat) thông qua các bữa ăn quen thuộc của người Việt. Chú trọng thời điểm nạp năng lượng quanh các buổi tập là chìa khóa thành công.</p>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-2">
@@ -407,7 +476,6 @@
                 videoUrl: "https://www.youtube.com/embed/d2-g20A54-M" 
             }
         };
-        
         const trainingPlan = {
             push: ["Barbell Bench Press", "Incline Dumbbell Press", "Overhead Press", "Dumbbell Lateral Raises", "Triceps Pushdowns"],
             pull: ["Deadlifts", "Pull-ups", "Bent-Over Barbell Rows", "Face Pulls", "Barbell Curls"],
@@ -415,17 +483,17 @@
         };
 
         const runningData = {
-            easy: { phase1: "5-8 km (Pace 7:25-7:55/km)", phase2: "6-10 km (Pace 7:25-7:55/km)" },
-            quality: { 
-                phase1: "Intervals: 6x800m (Pace 5:20-5:35/km)", 
-                phase2: "Tempo Run: 6-8 km (Pace 6:15-6:25/km)" 
-            },
-            longRunKm: [12, 14, 16, 18, 16, 20, 22, 24, 26, 28, 30, 32, 28, 20, 12, 5],
-            taper: {
-                week14: { easy: "5km", quality: "3km Tempo nhẹ", long: "18-20km"},
-                week15: { easy: "4km", quality: "2km Tempo nhẹ", long: "10-12km"},
-                week16: { easy: "3km", quality: "Nghỉ", long: "RACE DAY!"},
-            }
+                easy: { phase1: "5-8 km (Pace 7:25-7:55/km)", phase2: "6-10 km (Pace 7:25-7:55/km)" },
+                quality: { 
+                    phase1: "Intervals: 6x800m (Pace 5:20-5:35/km)", 
+                    phase2: "Tempo Run: 6-8 km (Pace 6:15-6:25/km)" 
+                },
+                longRunKm: [12, 14, 16, 18, 16, 20, 22, 24, 26, 28, 30, 32, 28, 20, 12, 5],
+                taper: {
+                    week14: { easy: "5km", quality: "3km Tempo nhẹ", long: "18-20km"},
+                    week15: { easy: "4km", quality: "2km Tempo nhẹ", long: "10-12km"},
+                    week16: { easy: "3km", quality: "Nghỉ", long: "RACE DAY!"},
+                }
         };
 
         function getWeekData(week) {
@@ -585,7 +653,7 @@
         function displayTodaysPlan() {
             const today = new Date();
             const dayOfWeek = today.getDay(); 
-            const week = 1;
+            const week = 1; 
             const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             const todayData = getWeekData(week)[dayNames[dayOfWeek]];
             const container = document.getElementById('today-plan-container');
@@ -597,7 +665,7 @@
             if (!content) content = `<div class="card p-4"><p class="font-bold text-lg">Hôm nay là ngày nghỉ ngơi! Hãy tận hưởng và phục hồi nhé.</p></div>`;
             container.innerHTML = content;
         }
-        
+
         document.querySelectorAll('.accordion-header').forEach(button => {
             button.addEventListener('click', () => {
                 const content = button.nextElementSibling;
@@ -618,6 +686,197 @@
         renderSchedule(1);
         displayTodaysPlan();
         navigateTo('dashboard');
+
+        // PWA Functionality
+        initializePWA();
+
+        // PWA Functions
+        function initializePWA() {
+            // Register Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('✅ SW registered:', registration);
+                        checkForSWUpdate(registration);
+                    })
+                    .catch(error => console.log('❌ SW registration failed:', error));
+            }
+
+            // Handle install prompt
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                showInstallBanner();
+            });
+
+            // Check if app is running in PWA mode
+            if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+                console.log('🚀 App running in PWA mode!');
+                document.body.classList.add('pwa-mode');
+            }
+
+            // Handle orientation changes for mobile
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 100);
+            });
+
+            // Touch gestures for mobile
+            addTouchGestures();
+            
+            // Check connection status
+            updateConnectionStatus();
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+        }
+
+        function checkForSWUpdate(registration) {
+            registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        showUpdateBanner();
+                    }
+                });
+            });
+        }
+
+        function showInstallBanner() {
+            if (document.getElementById('install-banner')) return;
+            
+            const banner = document.createElement('div');
+            banner.id = 'install-banner';
+            banner.className = 'fixed bottom-4 left-4 right-4 bg-[#4A6C6F] text-white p-4 rounded-lg shadow-lg z-50 transform translate-y-full transition-transform duration-300';
+            banner.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-3">
+                            <span class="text-[#4A6C6F] text-lg">🏋️‍♂️</span>
+                        </div>
+                        <div>
+                            <div class="font-bold">Cài đặt Hybrid Training</div>
+                            <div class="text-sm opacity-90">Thêm vào màn hình chính để truy cập nhanh</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="install-btn" class="bg-white text-[#4A6C6F] px-3 py-1 rounded font-medium">Cài đặt</button>
+                        <button id="dismiss-install" class="text-white opacity-70 hover:opacity-100">✕</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(banner);
+            setTimeout(() => banner.classList.remove('translate-y-full'), 100);
+
+            document.getElementById('install-btn').addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log('Install prompt outcome:', outcome);
+                    deferredPrompt = null;
+                    banner.remove();
+                }
+            });
+
+            document.getElementById('dismiss-install').addEventListener('click', () => {
+                banner.classList.add('translate-y-full');
+                setTimeout(() => banner.remove(), 300);
+            });
+        }
+
+        function showUpdateBanner() {
+            const banner = document.createElement('div');
+            banner.className = 'fixed top-4 left-4 right-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg z-50';
+            banner.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="font-bold">Cập nhật mới có sẵn!</div>
+                        <div class="text-sm opacity-90">Khởi động lại để cập nhật</div>
+                    </div>
+                    <button id="update-btn" class="bg-white text-blue-600 px-3 py-1 rounded font-medium">Cập nhật</button>
+                </div>
+            `;
+            
+            document.body.appendChild(banner);
+
+            document.getElementById('update-btn').addEventListener('click', () => {
+                if (navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({type: 'SKIP_WAITING'});
+                }
+                window.location.reload();
+            });
+        }
+
+        function addTouchGestures() {
+            let startX, startY, startTime;
+            
+            document.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                startTime = Date.now();
+            }, { passive: true });
+
+            document.addEventListener('touchend', (e) => {
+                const endX = e.changedTouches[0].clientX;
+                const endY = e.changedTouches[0].clientY;
+                const endTime = Date.now();
+                
+                const deltaX = endX - startX;
+                const deltaY = endY - startY;
+                const deltaTime = endTime - startTime;
+                
+                // Swipe detection
+                if (Math.abs(deltaX) > 50 && Math.abs(deltaY) < 100 && deltaTime < 300) {
+                    if (deltaX > 0) {
+                        // Swipe right - previous tab
+                        switchTab(-1);
+                    } else {
+                        // Swipe left - next tab
+                        switchTab(1);
+                    }
+                }
+            }, { passive: true });
+        }
+
+        function switchTab(direction) {
+            const tabs = ['dashboard', 'schedule', 'nutrition', 'recovery'];
+            const currentIndex = tabs.findIndex(tab => !views[tab].classList.contains('hidden'));
+            const newIndex = (currentIndex + direction + tabs.length) % tabs.length;
+            navigateTo(tabs[newIndex]);
+        }
+
+        function updateConnectionStatus() {
+            const statusEl = document.getElementById('connection-status') || createConnectionStatusElement();
+            if (navigator.onLine) {
+                statusEl.className = 'hidden';
+            } else {
+                statusEl.className = 'fixed top-0 left-0 right-0 bg-orange-500 text-white text-center py-2 z-50';
+                statusEl.textContent = '📡 Đang offline - Dữ liệu được lưu trong cache';
+            }
+        }
+
+        function createConnectionStatusElement() {
+            const statusEl = document.createElement('div');
+            statusEl.id = 'connection-status';
+            document.body.appendChild(statusEl);
+            return statusEl;
+        }
+
+        // Vibration feedback for touch interactions
+        function vibrate(pattern = [50]) {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        // Add vibration to buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('button, .nav-item, .exercise-item')) {
+                vibrate([30]);
+            }
+        });
     });
 </script>
 

@@ -1,61 +1,73 @@
 {
   "name": "Lộ Trình Vận Động Viên Hybrid",
   "short_name": "Hybrid Training",
-  "description": "16 Tuần Chinh Phục Sức Mạnh & Marathon Sub 4:30",
+  "description": "Chương trình tập luyện hybrid kết hợp gym và chạy marathon 16 tuần",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F8F7F4",
   "theme_color": "#4A6C6F",
   "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "vi",
+  "categories": ["health", "fitness", "sports", "lifestyle"],
   "icons": [
     {
       "src": "icons/icon-72x72.png",
       "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
       "src": "icons/icon-96x96.png",
       "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "icons/icon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
       "src": "icons/icon-144x144.png",
       "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "icons/icon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
       "src": "icons/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "icons/icon-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ],
-  "categories": ["health", "fitness", "sports"]
+  "screenshots": [
+    {
+      "src": "icons/icon-512x512.png",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Theo dõi Progress",
+      "short_name": "Progress",
+      "description": "Xem tiến độ training",
+      "url": "/?shortcut=progress",
+      "icons": [{ "src": "icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Lịch tập hôm nay",
+      "short_name": "Hôm nay",
+      "description": "Lịch tập hôm nay",
+      "url": "/?shortcut=today",
+      "icons": [{ "src": "icons/icon-96x96.png", "sizes": "96x96" }]
+    }
+  ],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
 } 
