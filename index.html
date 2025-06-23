@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Điều Khiển Vận Động Viên Hybrid</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4A6C6F"/>
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Calm Focus -->
+    <!-- Application Structure Plan: A tabbed, dashboard-style Single Page Application. The structure is task-oriented (Dashboard, Schedule, Nutrition, Recovery) rather than following the linear report format. This provides immediate, actionable information ('What's today's plan?') on the dashboard and allows for deep-dives into specific areas via tabs. The core interaction is a week selector on the 'Training Schedule' tab that dynamically updates a 7-day grid, with clickable days revealing detailed workouts. This design prioritizes usability and quick access to relevant daily information. -->
+    <!-- Visualization & Content Choices: 1. **Personal Metrics (Dashboard): Goal: Inform.** Method: Dynamic stats in cards (HTML/Tailwind). Justification: Quick, scannable overview of key numbers. 2. **Macro Split (Dashboard/Nutrition): Goal: Proportions.** Method: Donut Chart (Chart.js). Justification: Classic, instant visual for part-to-whole relationships. 3. **Long Run Progression (Training): Goal: Change over time.** Method: Line Chart (Chart.js). Justification: Clearly shows the progressive overload principle applied to the key marathon training run. 4. **Weekly Schedule (Training): Goal: Organize.** Method: Interactive 7-day grid (HTML/Tailwind + JS). Interaction: Week selector updates the grid; clicking a day shows details. Justification: Most intuitive way to view a weekly calendar. Hiding details until clicked prevents information overload. 5. **Exercise/Recovery Details: Goal: Instruct.** Method: Accordions/Modals (HTML + JS). Justification: Hides complex information until requested, keeping the UI clean. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #F8F7F4;
+            color: #3D3B3A;
+        }
+        .nav-item {
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            color: #78716C;
+            font-weight: 500;
+        }
+        .nav-item.active, .nav-item:hover {
+            background-color: #4A6C6F;
+            color: #FFFFFF;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 300px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+                max-height: 350px;
+            }
+        }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+        }
+        .section-title {
+            color: #4A6C6F;
+            font-weight: 700;
+            font-size: 1.875rem;
+            line-height: 2.25rem;
+            border-bottom: 3px solid #D1D5DB;
+            padding-bottom: 0.5rem;
+        }
+        .week-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #4A6C6F;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .week-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: #4A6C6F;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        <!-- HEADER -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-5xl font-bold text-[#3B5A5C]">Lộ Trình Vận Động Viên Hybrid</h1>
+            <p class="text-lg text-gray-600 mt-2">16 Tuần Chinh Phục Sức Mạnh & Marathon Sub 4:30</p>
+        </header>
+
+        <!-- NAVIGATION -->
+        <nav class="flex flex-wrap justify-center items-center mb-8 bg-white/70 backdrop-blur-sm p-2 rounded-xl shadow-sm sticky top-4 z-50">
+            <a id="nav-dashboard" class="nav-item active">📊 Bảng Điều Khiển</a>
+            <a id="nav-schedule" class="nav-item">🗓️ Lịch Tập</a>
+            <a id="nav-nutrition" class="nav-item">🥗 Dinh Dưỡng</a>
+            <a id="nav-recovery" class="nav-item">🧘 Phục Hồi & Tư Thế</a>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main>
+            <!-- DASHBOARD VIEW -->
+            <section id="view-dashboard">
+                <h2 class="section-title mb-6">Bảng Điều Khiển</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Today's Plan -->
+                    <div class="md:col-span-2 lg:col-span-3 p-6 card bg-gradient-to-br from-teal-50 to-[#E0E7E9]">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Kế Hoạch Hôm Nay (<span id="today-date"></span>)</h3>
+                        <div id="today-plan-container" class="space-y-4">
+                            <!-- JS will populate this -->
+                        </div>
+                    </div>
+                    
+                    <!-- Personal Metrics -->
+                    <div class="p-6 card">
+                        <h3 class="text-xl font-bold mb-3 text-gray-800">Chỉ Số Cá Nhân</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li><strong>Tuổi:</strong> 24</li>
+                            <li><strong>Chiều cao:</strong> 167 cm</li>
+                            <li><strong>Cân nặng:</strong> 58 kg</li>
+                            <li><strong>Mục tiêu Marathon:</strong> < 4h30</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Calorie Goals -->
+                    <div class="p-6 card text-center flex flex-col justify-center items-center">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">Mục Tiêu Năng Lượng</h3>
+                        <p class="text-4xl font-bold text-[#4A6C6F]">~3000</p>
+                        <p class="text-gray-600">kcal/ngày</p>
+                        <p class="text-sm mt-2 text-gray-500">(BMR: ~1509 | TDEE: ~2603)</p>
+                    </div>
+
+                    <!-- Macro Split -->
+                    <div class="p-6 card">
+                        <h3 class="text-xl font-bold mb-3 text-center text-gray-800">Dinh Dưỡng Đa Lượng</h3>
+                        <div class="chart-container">
+                            <canvas id="macroChart"></canvas>
+                        </div>
+                         <div class="flex justify-around mt-4 text-xs md:text-sm text-center">
+                            <div><span class="font-bold block text-blue-600">Carb</span>375g</div>
+                            <div><span class="font-bold block text-green-600">Protein</span>225g</div>
+                            <div><span class="font-bold block text-red-600">Fat</span>67g</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SCHEDULE VIEW -->
+            <section id="view-schedule" class="hidden">
+                <h2 class="section-title mb-6">Lịch Tập Chi Tiết 16 Tuần</h2>
+                
+                <!-- Week Selector -->
+                <div class="mb-8 p-4 card">
+                    <label for="week-selector" class="block text-xl font-bold text-gray-800 mb-2">Chọn Tuần: <span id="week-label" class="text-[#4A6C6F]">1</span></label>
+                    <input type="range" id="week-selector" min="1" max="16" value="1" class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer week-slider">
+                    <div id="phase-info" class="text-center font-semibold mt-2 text-gray-600"></div>
+                </div>
+
+                <!-- Weekly Schedule Grid -->
+                <div id="schedule-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4">
+                    <!-- JS will populate this -->
+                </div>
+
+                 <!-- Long Run Progression Chart -->
+                <div class="mt-12 p-6 card">
+                    <h3 class="text-2xl font-bold mb-4 text-center text-gray-800">Tiến Độ Chạy Dài (Long Run)</h3>
+                    <div class="chart-container h-64 md:h-80 max-w-4xl">
+                        <canvas id="longRunChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NUTRITION VIEW -->
+            <section id="view-nutrition" class="hidden">
+                <h2 class="section-title mb-6">Kế Hoạch Dinh Dưỡng</h2>
+                 <p class="mb-8 text-gray-700 max-w-4xl">Dinh dưỡng là nền tảng cho sự phục hồi và phát triển. Kế hoạch này tập trung vào việc nạp đủ năng lượng (~3000 kcal) với tỷ lệ dinh dưỡng đa lượng tối ưu (50% Carb, 30% Protein, 20% Fat) thông qua các bữa ăn quen thuộc của người Việt. Chú trọng thời điểm nạp năng lượng quanh các buổi tập là chìa khóa thành công.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800">Thực Đơn Mẫu (~3000 kcal)</h3>
+                        <div class="space-y-4">
+                            <div class="card p-4"><strong>Bữa 1 (6:30, Trước chạy):</strong> 1 quả chuối, cà phê đen. (~120 kcal)</div>
+                            <div class="card p-4"><strong>Bữa 2 (9:00, Sau chạy):</strong> 1 muỗng whey protein + 250ml sữa tươi + 1 quả chuối. (~350 kcal)</div>
+                            <div class="card p-4"><strong>Bữa 3 (12:00, Trưa):</strong> 1 tô Phở bò tái lớn (thêm thịt). (~550 kcal)</div>
+                            <div class="card p-4"><strong>Bữa 4 (15:30, Phụ):</strong> 1 hộp sữa chua Hy Lạp + 30g hạnh nhân. (~350 kcal)</div>
+                            <div class="card p-4"><strong>Bữa 5 (18:00, Trước gym):</strong> 2 trứng luộc + 1 khoai lang vừa. (~320 kcal)</div>
+                            <div class="card p-4"><strong>Bữa 6 (20:30, Tối):</strong> 250g ức gà nướng + 2 bát cơm gạo lứt + rau luộc. (~900 kcal)</div>
+                             <div class="card p-4"><strong>Bữa 7 (22:00, Phụ tối):</strong> 1 ly sữa hạt hoặc phô mai Cottage. (~200 kcal)</div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800">Thư Viện Thực Phẩm</h3>
+                        <p class="mb-4 text-gray-600">Linh hoạt lựa chọn các thực phẩm sau để xây dựng bữa ăn của bạn.</p>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="font-bold text-lg text-green-700">Nguồn Protein Chất Lượng</h4>
+                                <p class="text-gray-700">Ức gà, bò thăn, cá hồi, cá diêu hồng, tôm, trứng, đậu hũ, sữa chua Hy Lạp, whey.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg text-blue-700">Nguồn Carb Phức Hợp</h4>
+                                <p class="text-gray-700">Cơm (gạo lứt, trắng), bún, phở, khoai lang, yến mạch, bánh mì nguyên cám, chuối, xoài.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg text-red-700">Nguồn Chất Béo Tốt</h4>
+                                <p class="text-gray-700">Dầu ô liu, quả bơ, hạnh nhân, óc chó, bơ đậu phộng, lòng đỏ trứng.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RECOVERY VIEW -->
+            <section id="view-recovery" class="hidden">
+                 <h2 class="section-title mb-6">Phục Hồi & Cải Thiện Tư Thế</h2>
+                 <p class="mb-8 text-gray-700 max-w-4xl">Sự tiến bộ không xảy ra trong lúc tập mà là trong lúc nghỉ ngơi. Ưu tiên phục hồi thông qua giấc ngủ, giãn cơ và các bài tập bổ trợ là yếu tố quyết định để bạn mạnh hơn, nhanh hơn và tránh xa chấn thương. Phần này đặc biệt tập trung vào các bài tập khắc phục chứng gù lưng.</p>
+                <div class="space-y-6">
+                    <!-- Posture Correction -->
+                    <div class="card p-6">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800">Kế Hoạch Cải Thiện Tư Thế (Chống Gù Lưng)</h3>
+                        <p class="mb-4 text-gray-600">Tích hợp các bài tập này vào ngày tập PULL và phần khởi động để tăng cường sức mạnh cho lưng trên, kéo vai về vị trí tự nhiên.</p>
+                        <div class="space-y-2">
+                             <div class="accordion-item border-b">
+                                <button class="accordion-header w-full text-left py-3 font-semibold text-lg flex justify-between items-center">
+                                    <span>Face Pulls (Bài tập Vua)</span><span>+</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <p class="p-4 text-gray-700 bg-gray-50 rounded"><strong>Mục tiêu:</strong> Tăng cường cơ delta sau và các cơ xoay ngoài vai.<br><strong>Thực hiện:</strong> 3 hiệp x 15-20 lần lặp vào cuối buổi tập Pull. Kéo dây cáp về phía mặt, tập trung ép hai bả vai vào nhau.</p>
+                                </div>
+                            </div>
+                             <div class="accordion-item border-b">
+                                <button class="accordion-header w-full text-left py-3 font-semibold text-lg flex justify-between items-center">
+                                    <span>Wall Angels</span><span>+</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <p class="p-4 text-gray-700 bg-gray-50 rounded"><strong>Mục tiêu:</strong> Kích hoạt cơ thang giữa và dưới.<br><strong>Thực hiện:</strong> 2 hiệp x 10-12 lần lặp khi khởi động. Đứng dựa lưng vào tường, trượt tay lên xuống trong khi giữ khuỷu tay và mu bàn tay chạm tường.</p>
+                                </div>
+                            </div>
+                              <div class="accordion-item border-b">
+                                <button class="accordion-header w-full text-left py-3 font-semibold text-lg flex justify-between items-center">
+                                    <span>Band Pull-Aparts</span><span>+</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <p class="p-4 text-gray-700 bg-gray-50 rounded"><strong>Mục tiêu:</strong> Kích hoạt lưng trên.<br><strong>Thực hiện:</strong> 3 hiệp x 20 lần lặp. Dùng dây kháng lực, kéo hai tay sang ngang, giữ tay thẳng. Có thể tập giữa các hiệp của ngày PUSH.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Stretching & Mobility -->
+                    <div class="card p-6">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800">Giãn Cơ & Lăn Bọt (Foam Rolling)</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                           <li><strong>Khởi động động (5-10 phút):</strong> Luôn thực hiện trước mỗi buổi tập. Bao gồm nâng cao gối, gót chạm mông, đá lăng chân.</li>
+                           <li><strong>Giãn cơ tĩnh (10-15 phút):</strong> Thực hiện sau mỗi buổi tập khi cơ còn ấm. Giữ mỗi động tác 30-60 giây. Tập trung vào đùi trước, đùi sau, hông, mông, ngực và lưng.</li>
+                           <li><strong>Lăn bọt:</strong> 2-3 lần/tuần, tập trung vào các nhóm cơ lớn bị đau mỏi như đùi, bắp chân, và lưng trên.</li>
+                        </ul>
+                    </div>
+                    <!-- Sleep & Rest -->
+                    <div class="card p-6">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800">Giấc Ngủ & Ngày Nghỉ</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                            <li><strong>Giấc ngủ:</strong> Mục tiêu 7-9 tiếng/đêm. Đây là thời gian quan trọng nhất để cơ thể sửa chữa và phát triển.</li>
+                            <li><strong>Phục hồi chủ động (Thứ 4):</strong> Đi bộ nhẹ, bơi lội hoặc yoga để tăng lưu thông máu, đẩy nhanh quá trình phục hồi.</li>
+                            <li><strong>Nghỉ hoàn toàn (Thứ 7):</strong> Cho phép cơ thể và hệ thần kinh được nghỉ ngơi tuyệt đối.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('Service Worker registered: ', registration);
+                })
+                .catch(registrationError => {
+                    console.log('Service Worker registration failed: ', registrationError);
+                });
+        });
+    }
+
+    // Original App Logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const views = {
+            dashboard: document.getElementById('view-dashboard'),
+            schedule: document.getElementById('view-schedule'),
+            nutrition: document.getElementById('view-nutrition'),
+            recovery: document.getElementById('view-recovery'),
+        };
+
+        const navItems = {
+            dashboard: document.getElementById('nav-dashboard'),
+            schedule: document.getElementById('nav-schedule'),
+            nutrition: document.getElementById('nav-nutrition'),
+            recovery: document.getElementById('nav-recovery'),
+        };
+
+        const trainingData = {
+            push: { 
+                phase1: [
+                    "Barbell Bench Press: 4x8-10",
+                    "Incline Dumbbell Press: 3x10-12",
+                    "Overhead Press: 4x8-10",
+                    "Dumbbell Lateral Raises: 3x12-15",
+                    "Triceps Pushdowns: 3x12-15",
+                    "Wall Angels (Tư thế): 2x10-12",
+                ],
+                phase2: [
+                    "Barbell Bench Press: 5x5-6",
+                    "Overhead Press: 4x5-6",
+                    "Incline Dumbbell Press: 3x8-10",
+                    "Dumbbell Lateral Raises: 3x12-15",
+                    "Triceps Pushdowns: 3x10-12",
+                ]
+            },
+            pull: {
+                phase1: [
+                    "Deadlifts: 4x6-8",
+                    "Pull-ups / Lat Pulldowns: 4x8-12",
+                    "Bent-Over Barbell Rows: 3x8-10",
+                    "Face Pulls (Tư thế): 3x15-20",
+                    "Barbell Curls: 3x10-12",
+                ],
+                phase2: [
+                    "Deadlifts: 1x5 (Nặng) hoặc RDLs 4x8-10",
+                    "Pull-ups / Lat Pulldowns: 4x6-8",
+                    "Bent-Over Barbell Rows: 3x8-10",
+                    "Face Pulls (Tư thế): 3x15-20",
+                    "Barbell Curls: 3x10-12",
+                ]
+            },
+            legs: {
+                phase1: [
+                    "Barbell Back Squats: 4x8-10",
+                    "Romanian Deadlifts (RDLs): 3x10-12",
+                    "Dumbbell Lunges: 3x10-12/chân",
+                    "Leg Press: 3x12-15",
+                    "Standing Calf Raises: 4x15-20",
+                ],
+                 phase2: [
+                    "Barbell Back Squats: 5x5-6",
+                    "Romanian Deadlifts (RDLs): 3x8-10",
+                    "Dumbbell Lunges: 3x10-12/chân",
+                    "Leg Extensions: 3x12-15",
+                    "Standing Calf Raises: 4x15-20",
+                ]
+            },
+            running: {
+                easy: { phase1: "5-8 km (Pace 7:25-7:55/km)", phase2: "6-10 km (Pace 7:25-7:55/km)" },
+                quality: { 
+                    phase1: "Intervals: 6x800m (Pace 5:20-5:35/km)", 
+                    phase2: "Tempo Run: 6-8 km (Pace 6:15-6:25/km)" 
+                },
+                longRunKm: [12, 14, 16, 18, 16, 20, 22, 24, 26, 28, 30, 32, 28, 20, 12, 5],
+                taper: {
+                    week14: { easy: "5km", quality: "3km Tempo nhẹ", long: "18-20km"},
+                    week15: { easy: "4km", quality: "2km Tempo nhẹ", long: "10-12km"},
+                    week16: { easy: "3km", quality: "Nghỉ", long: "RACE DAY!"},
+                }
+            },
+        };
+
+        function getWeekData(week) {
+            let phase = week <= 8 ? 'phase1' : 'phase2';
+            let gymSchedule = {
+                push: trainingData.push[phase],
+                pull: trainingData.pull[phase],
+                legs: trainingData.legs[phase],
+            };
+            let runSchedule = {
+                easy: trainingData.running.easy[phase],
+                quality: trainingData.running.quality[phase],
+                long: `${trainingData.running.longRunKm[week-1]} km (Pace 6:55-7:25/km)`,
+            };
+
+            if (week >= 14) { // Taper phase
+                const taperWeek = trainingData.running.taper[`week${week}`];
+                runSchedule.easy = taperWeek.easy;
+                runSchedule.quality = taperWeek.quality;
+                runSchedule.long = taperWeek.long;
+                
+                if (week == 14) gymSchedule = {push: ["Toàn thân nhẹ 50%"], pull: ["Nghỉ"], legs: ["Toàn thân nhẹ 50%"] };
+                else if (week == 15) gymSchedule = {push: ["Nghỉ"], pull: ["Toàn thân rất nhẹ"], legs: ["Nghỉ"] };
+                else gymSchedule = {push: ["Nghỉ"], pull: ["Nghỉ"], legs: ["Nghỉ"] };
+            }
+
+            return {
+                Mon: { run: runSchedule.easy, gym: { type: 'PUSH', exercises: gymSchedule.push }},
+                Tue: { run: runSchedule.quality, gym: { type: 'PULL', exercises: gymSchedule.pull }},
+                Wed: { run: "Phục hồi chủ động (đi bộ/yoga)", gym: null },
+                Thu: { run: runSchedule.easy, gym: { type: 'LEGS', exercises: gymSchedule.legs }},
+                Fri: { run: null, gym: { type: 'THỂ THAO', exercises: ["Đá bóng hàng tuần"] }},
+                Sat: { run: "NGHỈ HOÀN TOÀN", gym: null },
+                Sun: { run: runSchedule.long, gym: null }
+            };
+        }
+        
+        function navigateTo(viewId) {
+            Object.values(views).forEach(v => v.classList.add('hidden'));
+            views[viewId].classList.remove('hidden');
+
+            Object.values(navItems).forEach(item => item.classList.remove('active'));
+            navItems[viewId].classList.add('active');
+        }
+
+        Object.keys(navItems).forEach(key => {
+            navItems[key].addEventListener('click', () => navigateTo(key));
+        });
+
+        const macroCtx = document.getElementById('macroChart').getContext('2d');
+        new Chart(macroCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Carbohydrate (50%)', 'Protein (30%)', 'Chất béo (20%)'],
+                datasets: [{
+                    data: [50, 30, 20],
+                    backgroundColor: ['#3B82F6', '#10B981', '#EF4444'],
+                    borderColor: '#F8F7F4',
+                    borderWidth: 4,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                family: "'Be Vietnam Pro', sans-serif",
+                                size: 12
+                            },
+                            boxWidth: 20,
+                            padding: 20
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        const longRunCtx = document.getElementById('longRunChart').getContext('2d');
+        new Chart(longRunCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 16}, (_, i) => `Tuần ${i + 1}`),
+                datasets: [{
+                    label: 'Quãng đường Chạy Dài (km)',
+                    data: trainingData.running.longRunKm,
+                    fill: true,
+                    backgroundColor: 'rgba(74, 108, 111, 0.1)',
+                    borderColor: '#4A6C6F',
+                    tension: 0.3,
+                    pointBackgroundColor: '#4A6C6F',
+                    pointRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Quãng đường (km)' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Tuần Luyện Tập' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        const weekSelector = document.getElementById('week-selector');
+        const weekLabel = document.getElementById('week-label');
+        const scheduleGrid = document.getElementById('schedule-grid');
+        const phaseInfo = document.getElementById('phase-info');
+
+        function renderSchedule(week) {
+            weekLabel.textContent = week;
+            let phaseText = '';
+            if (week <= 8) phaseText = 'Giai Đoạn 1: Xây Dựng Nền Tảng';
+            else if (week <= 13) phaseText = 'Giai Đoạn 2: Đỉnh Cao Phong Độ';
+            else phaseText = 'Giai Đoạn 3: Taper & Thi Đấu';
+            phaseInfo.textContent = phaseText;
+
+            const weekData = getWeekData(week);
+            scheduleGrid.innerHTML = '';
+            const days = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'];
+            
+            let dayIndex = 0;
+            for (const day in weekData) {
+                const dayInfo = weekData[day];
+                let gymHtml = '';
+                if (dayInfo.gym) {
+                    gymHtml = `
+                        <div class="mt-3 pt-3 border-t border-gray-200">
+                            <h5 class="font-bold text-gray-700">🏋️‍♂️ Gym (${dayInfo.gym.type})</h5>
+                            <ul class="list-disc list-inside text-sm text-gray-600 mt-1 pl-2">
+                                ${dayInfo.gym.exercises.map(ex => `<li>${ex}</li>`).join('')}
+                            </ul>
+                        </div>`;
+                }
+
+                let runHtml = '';
+                if (dayInfo.run) {
+                     runHtml = `<div class="mt-2"><h5 class="font-bold text-gray-700">🏃‍♂️ Chạy Bộ</h5><p class="text-sm text-gray-600">${dayInfo.run}</p></div>`;
+                }
+
+                const dayCard = `
+                    <div class="card p-4 flex flex-col h-full">
+                        <h4 class="font-bold text-lg text-center text-[#3B5A5C] pb-2 border-b">${days[dayIndex]}</h4>
+                        <div class="flex-grow mt-2">
+                            ${runHtml}
+                            ${gymHtml}
+                        </div>
+                    </div>
+                `;
+                scheduleGrid.innerHTML += dayCard;
+                dayIndex++;
+            }
+        }
+
+        weekSelector.addEventListener('input', (e) => {
+            renderSchedule(e.target.value);
+        });
+
+        function displayTodaysPlan() {
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // Sunday - 0, Monday - 1, ...
+            const week = 1; 
+            const weekData = getWeekData(week);
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const dayKey = dayNames[dayOfWeek];
+            const todayData = weekData[dayKey];
+
+            const container = document.getElementById('today-plan-container');
+            document.getElementById('today-date').textContent = today.toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            let content = '';
+            if (todayData.run) {
+                content += `<div class="card p-4">
+                    <p class="font-bold text-lg">🏃‍♂️ Chạy Sáng:</p>
+                    <p class="text-gray-700">${todayData.run}</p>
+                </div>`;
+            }
+            if (todayData.gym) {
+                content += `<div class="card p-4">
+                    <p class="font-bold text-lg">🏋️‍♂️ Gym Tối (${todayData.gym.type}):</p>
+                    <ul class="list-disc list-inside text-gray-700 mt-1 pl-4">
+                        ${todayData.gym.exercises.map(ex => `<li>${ex}</li>`).join('')}
+                    </ul>
+                </div>`;
+            }
+             if (!todayData.run && !todayData.gym) {
+                content = `<div class="card p-4"><p class="font-bold text-lg">Hôm nay là ngày nghỉ ngơi! Hãy tận hưởng và phục hồi nhé.</p></div>`;
+            }
+            container.innerHTML = content;
+        }
+
+        document.querySelectorAll('.accordion-header').forEach(button => {
+            button.addEventListener('click', () => {
+                const accordionContent = button.nextElementSibling;
+                const isExpanded = accordionContent.style.maxHeight && accordionContent.style.maxHeight !== '0px';
+                
+                document.querySelectorAll('.accordion-content').forEach(content => content.style.maxHeight = '0px');
+                document.querySelectorAll('.accordion-header span:last-child').forEach(span => span.textContent = '+');
+
+                if (!isExpanded) {
+                    accordionContent.style.maxHeight = accordionContent.scrollHeight + "px";
+                    button.querySelector('span:last-child').textContent = '-';
+                }
+            });
+        });
+
+        renderSchedule(1);
+        displayTodaysPlan();
+        navigateTo('dashboard');
+    });
+</script>
+
+</body>
+</html>

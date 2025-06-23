@@ -1,0 +1,144 @@
+name: PWA Quality Assurance
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    # Chạy hàng tuần vào Chủ nhật lúc 2:00 AM UTC
+    - cron: '0 2 * * 0'
+
+jobs:
+  lighthouse-audit:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm ci || npm install
+
+    - name: Start local server
+      run: |
+        npm start &
+        sleep 10
+        curl -f http://localhost:3000 || exit 1
+
+    - name: Run Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v10
+      with:
+        urls: |
+          http://localhost:3000
+        configPath: '.github/lighthouserc.json'
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+
+    - name: PWA Validation
+      run: |
+        echo "🔍 Kiểm tra PWA requirements..."
+        
+        # Kiểm tra manifest.json
+        if curl -s http://localhost:3000/manifest.json | jq . > /dev/null; then
+          echo "✅ Manifest.json hợp lệ"
+        else
+          echo "❌ Manifest.json không hợp lệ"
+          exit 1
+        fi
+        
+        # Kiểm tra Service Worker
+        if curl -s http://localhost:3000/sw.js | grep -q "CACHE_NAME"; then
+          echo "✅ Service Worker tồn tại"
+        else
+          echo "❌ Service Worker không tồn tại"
+          exit 1
+        fi
+        
+        # Kiểm tra icons
+        for size in 192 512; do
+          if curl -f -s http://localhost:3000/icons/icon-${size}x${size}.png > /dev/null; then
+            echo "✅ Icon ${size}x${size} tồn tại"
+          else
+            echo "❌ Icon ${size}x${size} không tồn tại"
+          fi
+        done
+
+    - name: Mobile Performance Test
+      run: |
+        npx lighthouse http://localhost:3000 \
+          --preset=perf \
+          --emulated-form-factor=mobile \
+          --throttling-method=simulate \
+          --output=json \
+          --output-path=mobile-performance.json
+        
+        # Kiểm tra Performance Score
+        PERF_SCORE=$(jq '.categories.performance.score * 100' mobile-performance.json)
+        echo "📱 Mobile Performance Score: $PERF_SCORE"
+        
+        if (( $(echo "$PERF_SCORE >= 80" | bc -l) )); then
+          echo "✅ Performance đạt yêu cầu (>= 80)"
+        else
+          echo "⚠️ Performance cần cải thiện (< 80)"
+        fi
+
+    - name: Upload Lighthouse Reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: lighthouse-reports
+        path: |
+          lighthouse-report.html
+          mobile-performance.json
+          lhci_reports/
+
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Security Scan
+      run: |
+        echo "🔐 Kiểm tra bảo mật cơ bản..."
+        
+        # Kiểm tra HTTPS trong manifest
+        if grep -q '"start_url": "/"' manifest.json; then
+          echo "✅ Start URL relative (tốt cho HTTPS)"
+        fi
+        
+        # Kiểm tra meta security tags
+        if grep -q 'viewport' index.html; then
+          echo "✅ Viewport meta tag có"
+        fi
+        
+        # Kiểm tra external links
+        echo "🔗 Kiểm tra external dependencies:"
+        grep -o 'https://[^"]*' index.html | sort | uniq
+
+    - name: Bundle Size Analysis
+      run: |
+        echo "📦 Phân tích kích thước bundle..."
+        
+        TOTAL_SIZE=$(du -sh . | cut -f1)
+        HTML_SIZE=$(du -sh index.html | cut -f1)
+        
+        echo "📂 Total size: $TOTAL_SIZE"
+        echo "📄 HTML size: $HTML_SIZE"
+        
+        # Cảnh báo nếu file quá lớn
+        HTML_BYTES=$(wc -c < index.html)
+        if [ $HTML_BYTES -gt 100000 ]; then
+          echo "⚠️ HTML file > 100KB, cân nhắc tối ưu hóa"
+        else
+          echo "✅ HTML size OK"
+        fi 

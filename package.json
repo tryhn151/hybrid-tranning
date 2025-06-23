@@ -1,0 +1,46 @@
+{
+  "name": "hybrid-training-pwa",
+  "version": "1.0.0",
+  "description": "Progressive Web App cho Lộ Trình Vận Động Viên Hybrid - 16 Tuần Chinh Phục Sức Mạnh & Marathon Sub 4:30",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve . -p 3000",
+    "dev": "npx serve . -p 3000 --live-reload",
+    "build": "echo 'Static PWA - No build step needed'",
+    "preview": "npx serve . -p 4173",
+    "validate-pwa": "npx pwa-asset-generator --help || npm install -g pwa-asset-generator",
+    "generate-icons": "npx pwa-asset-generator icons/source-icon.svg icons --background '#4A6C6F' --theme-color '#4A6C6F'",
+    "lighthouse": "npx lighthouse http://localhost:3000 --output html --output-path ./lighthouse-report.html",
+    "test-pwa": "npm run start & sleep 5 && npm run lighthouse && pkill -f 'serve'"
+  },
+  "keywords": [
+    "pwa",
+    "progressive-web-app",
+    "hybrid-training",
+    "marathon",
+    "fitness",
+    "vietnam",
+    "github-pages"
+  ],
+  "author": "Hybrid Training Vietnam",
+  "license": "MIT",
+  "devDependencies": {
+    "@pwa-builder/pwabuilder-cli": "^1.0.0",
+    "lighthouse": "^11.0.0",
+    "pwa-asset-generator": "^6.3.0",
+    "serve": "^14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/[your-username]/hybrid-tranning.git"
+  },
+  "homepage": "https://[your-username].github.io/hybrid-tranning/",
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "not op_mini all"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  }
+} 
