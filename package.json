@@ -8,8 +8,8 @@
     "dev": "npx serve . -p 3000 --live-reload",
     "build": "echo 'Static PWA - No build step needed'",
     "preview": "npx serve . -p 4173",
-    "validate-pwa": "npx pwa-asset-generator --help || npm install -g pwa-asset-generator",
-    "generate-icons": "npx pwa-asset-generator icons/source-icon.svg icons --background '#4A6C6F' --theme-color '#4A6C6F'",
+    "validate-pwa": "echo 'PWA validation via workflow'",
+    "generate-icons": "echo 'Icons ready in icons/ directory'",
     "lighthouse": "npx lighthouse http://localhost:3000 --output html --output-path ./lighthouse-report.html",
     "test-pwa": "npm run start & sleep 5 && npm run lighthouse && pkill -f 'serve'"
   },
@@ -25,9 +25,7 @@
   "author": "Hybrid Training Vietnam",
   "license": "MIT",
   "devDependencies": {
-    "@pwa-builder/pwabuilder-cli": "^1.0.0",
     "lighthouse": "^11.0.0",
-    "pwa-asset-generator": "^6.3.0",
     "serve": "^14.0.0"
   },
   "repository": {
