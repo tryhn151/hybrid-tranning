@@ -1,1 +1,35 @@
- 
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4A6C6F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6B9B9E;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="240" fill="#F8F7F4" stroke="#4A6C6F" stroke-width="8"/>
+  
+  <!-- Dumbbell Icon -->
+  <g transform="translate(256,256)">
+    <!-- Left Weight -->
+    <rect x="-160" y="-50" width="40" height="100" rx="10" fill="url(#grad)"/>
+    <rect x="-135" y="-40" width="20" height="80" rx="5" fill="#4A6C6F"/>
+    
+    <!-- Right Weight -->
+    <rect x="120" y="-50" width="40" height="100" rx="10" fill="url(#grad)"/>
+    <rect x="115" y="-40" width="20" height="80" rx="5" fill="#4A6C6F"/>
+    
+    <!-- Bar -->
+    <rect x="-120" y="-8" width="240" height="16" rx="8" fill="#4A6C6F"/>
+    
+    <!-- Grip Lines -->
+    <line x1="-70" y1="-20" x2="-70" y2="20" stroke="#6B9B9E" stroke-width="3"/>
+    <line x1="-40" y1="-20" x2="-40" y2="20" stroke="#6B9B9E" stroke-width="3"/>
+    <line x1="40" y1="-20" x2="40" y2="20" stroke="#6B9B9E" stroke-width="3"/>
+    <line x1="70" y1="-20" x2="70" y2="20" stroke="#6B9B9E" stroke-width="3"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="256" y="400" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#4A6C6F">HYBRID</text>
+  <text x="256" y="440" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#6B9B9E">TRAINING</text>
+</svg> 
