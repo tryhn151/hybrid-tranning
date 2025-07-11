@@ -354,7 +354,7 @@
 
     <!-- Exercise Detail Modal -->
     <div id="exercise-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] hidden opacity-0">
-        <div class="modal-container bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative opacity-0 transform scale-95">
+        <div class="modal-container bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] overflow-y-auto p-6 relative opacity-0 transform scale-95">
             <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-3xl">&times;</button>
             <h3 id="modal-title" class="text-2xl font-bold text-gray-800 mb-4"></h3>
             <div class="mb-4 border-b border-gray-200">
@@ -362,13 +362,16 @@
                     <button id="tab-video" class="tab-btn active-tab">Video Hướng Dẫn</button>
                 </nav>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div id="media-container" class="w-full aspect-w-16 aspect-h-9 bg-gray-200 rounded-lg shadow-md overflow-hidden">
-                    <!-- Media (Image/Video) will be injected here by JS -->
+            <div class="space-y-6">
+                <div id="media-container" class="w-full aspect-video bg-gray-200 rounded-lg shadow-md overflow-hidden">
+                    <!-- Video will be injected here by JS -->
                 </div>
-                <div>
-                    <h4 class="font-bold text-lg mb-2">Hướng dẫn thực hiện:</h4>
-                    <p id="modal-description" class="text-gray-700 whitespace-pre-line"></p>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-bold text-lg mb-3 text-gray-800 flex items-center">
+                        <span class="text-blue-600 mr-2">🎯</span>
+                        Hướng Dẫn Thực Hiện
+                    </h4>
+                    <div id="modal-description" class="text-gray-700 space-y-2"></div>
                 </div>
             </div>
         </div>
@@ -588,12 +591,12 @@
             } else {
                 // Hiển thị thông báo khi không có video
                 const noVideoMsg = document.createElement('div');
-                noVideoMsg.className = 'w-full h-full flex items-center justify-center bg-gray-100 rounded-lg';
+                noVideoMsg.className = 'w-full h-64 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg';
                 noVideoMsg.innerHTML = `
                     <div class="text-center text-gray-500">
-                        <span class="text-4xl mb-2 block">🎥</span>
-                        <p class="font-medium">Chưa có video hướng dẫn</p>
-                        <p class="text-sm">Vui lòng tham khảo phần mô tả bên dưới</p>
+                        <span class="text-5xl mb-3 block">🎥</span>
+                        <p class="font-medium text-lg">Chưa có video hướng dẫn</p>
+                        <p class="text-sm mt-1">Vui lòng tham khảo phần mô tả chi tiết bên dưới</p>
                     </div>
                 `;
                 mediaContainer.appendChild(noVideoMsg);
@@ -613,19 +616,26 @@
             const formattedDescription = descriptionLines.map(line => `<p class="mb-2">${line}</p>`).join('');
             
             modalDescription.innerHTML = `
-                <div class="mb-4 p-3 bg-blue-50 rounded-lg">
-                    <p class="font-semibold text-blue-800 mb-1">📊 Sets & Reps:</p>
-                    <p class="text-blue-700 font-medium">${exercise.reps}</p>
+                <div class="mb-4 p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                    <p class="font-semibold text-blue-800 mb-1 flex items-center">
+                        <span class="mr-2">📊</span>Sets & Reps
+                    </p>
+                    <p class="text-blue-700 font-medium text-lg">${exercise.reps}</p>
                 </div>
-                <div class="text-gray-700">
-                    <p class="font-semibold mb-2">🎯 Hướng dẫn thực hiện:</p>
+                <div class="text-gray-700 space-y-3">
                     ${formattedDescription}
                 </div>
-                <div class="mt-4 p-3 bg-amber-50 rounded-lg">
-                    <p class="text-sm text-amber-700">
-                        <span class="font-medium">⚠️ Lưu ý an toàn:</span> 
-                        Luôn khởi động trước khi tập, giữ form đúng, và ngừng nếu cảm thấy đau bất thường.
+                <div class="mt-4 p-4 bg-amber-50 rounded-lg border-l-4 border-amber-400">
+                    <p class="font-semibold text-amber-800 mb-2 flex items-center">
+                        <span class="mr-2">⚠️</span>Lưu Ý An Toàn
                     </p>
+                    <ul class="text-sm text-amber-700 space-y-1 list-disc list-inside">
+                        <li>Luôn khởi động 5-10 phút trước khi tập</li>
+                        <li>Giữ form chuẩn, ưu tiên kỹ thuật hơn trọng lượng</li>
+                        <li>Thở đều đặn, không nín thở khi tập</li>
+                        <li>Ngừng ngay nếu cảm thấy đau bất thường</li>
+                        <li>Tăng tải dần dần theo thời gian</li>
+                    </ul>
                 </div>
             `;
 
