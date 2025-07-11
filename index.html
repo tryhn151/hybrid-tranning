@@ -574,9 +574,19 @@
             if (!currentExerciseForModal) return;
 
             if (type === 'video' && currentExerciseForModal.videoUrl) {
+                // Chuyển đổi YouTube URL từ watch sang embed format
+                let embedUrl = currentExerciseForModal.videoUrl;
+                if (embedUrl.includes('youtube.com/watch?v=')) {
+                    const videoId = embedUrl.split('v=')[1].split('&')[0];
+                    embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                } else if (embedUrl.includes('youtu.be/')) {
+                    const videoId = embedUrl.split('youtu.be/')[1].split('?')[0];
+                    embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                }
+
                 const iframe = document.createElement('iframe');
                 iframe.className = 'w-full h-full absolute top-0 left-0';
-                iframe.src = currentExerciseForModal.videoUrl;
+                iframe.src = embedUrl;
                 iframe.title = `Video hướng dẫn ${modalTitle.textContent}`;
                 iframe.setAttribute('frameborder', '0');
                 iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
