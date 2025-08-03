@@ -219,6 +219,12 @@
         <header class="text-center mb-8">
             <h1 class="text-3xl md:text-5xl font-bold text-[#3B5A5C]">Lộ Trình Vận Động Viên Hybrid</h1>
             <p class="text-lg text-gray-600 mt-2">16 Tuần Chinh Phục Sức Mạnh & Marathon Sub 4:30</p>
+            <div class="mt-4 p-4 bg-blue-50 rounded-lg max-w-2xl mx-auto">
+                <p class="text-sm text-blue-800">
+                    <strong>📅 Lịch trình:</strong> 16 tuần từ 04/08/2025 đến 23/11/2025<br>
+                    <strong>🎯 Tuần hiện tại:</strong> <span id="current-week-display" class="font-bold text-blue-900"></span>
+                </p>
+            </div>
         </header>
 
         <!-- NAVIGATION -->
@@ -246,6 +252,7 @@
                             <li><strong>Chiều cao:</strong> 167 cm</li>
                             <li><strong>Cân nặng:</strong> 58 kg</li>
                             <li><strong>Mục tiêu Marathon:</strong> < 4h30</li>
+                            <li><strong>Tiến độ:</strong> <span id="progress-display" class="font-bold text-blue-600"></span></li>
                         </ul>
                     </div>
                     <div class="p-6 card text-center flex flex-col justify-center items-center">
@@ -276,6 +283,7 @@
                     <label for="week-selector" class="block text-xl font-bold text-gray-800 mb-2">Chọn Tuần: <span id="week-label" class="text-[#4A6C6F]">1</span></label>
                     <input type="range" id="week-selector" min="1" max="16" value="1" class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer week-slider">
                     <div id="phase-info" class="text-center font-semibold mt-2 text-gray-600"></div>
+                    <div id="week-dates" class="text-center text-sm text-gray-500 mt-1"></div>
                 </div>
 
                 <div id="schedule-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4"></div>
@@ -521,6 +529,31 @@
                 }
         };
 
+        function getCurrentWeek() {
+            const startDate = new Date('2025-08-04'); // Ngày bắt đầu tuần 1
+            const today = new Date();
+            const timeDiff = today.getTime() - startDate.getTime();
+            const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+            const currentWeek = Math.floor(daysDiff / 7) + 1;
+            
+            // Giới hạn trong khoảng 1-16 tuần
+            return Math.max(1, Math.min(16, currentWeek));
+        }
+
+        function getWeekDates(week) {
+            const startDate = new Date('2025-08-04');
+            const weekStart = new Date(startDate);
+            weekStart.setDate(startDate.getDate() + (week - 1) * 7);
+            
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 6);
+            
+            return {
+                start: weekStart.toLocaleDateString('vi-VN', { day: 'numeric', month: 'numeric' }),
+                end: weekEnd.toLocaleDateString('vi-VN', { day: 'numeric', month: 'numeric' })
+            };
+        }
+
         function getWeekData(week) {
             let gymSchedule = {
                 push: trainingPlan.push,
@@ -681,7 +714,19 @@
 
         function renderSchedule(week) {
             weekLabel.textContent = week;
-            phaseInfo.textContent = week <= 8 ? 'Giai Đoạn 1: Nền Tảng' : (week <= 13 ? 'Giai Đoạn 2: Đỉnh Cao' : 'Giai Đoạn 3: Taper');
+            let phaseText = '';
+            if (week <= 8) {
+                phaseText = 'Giai Đoạn 1: Nền Tảng (Tuần 1-8)';
+            } else if (week <= 13) {
+                phaseText = 'Giai Đoạn 2: Đỉnh Cao (Tuần 9-13)';
+            } else {
+                phaseText = 'Giai Đoạn 3: Taper (Tuần 14-16)';
+            }
+            phaseInfo.textContent = phaseText;
+            
+            // Hiển thị ngày của tuần
+            const weekDates = getWeekDates(week);
+            document.getElementById('week-dates').textContent = `${weekDates.start} - ${weekDates.end}/08/2025`;
             const weekData = getWeekData(week);
             scheduleGrid.innerHTML = '';
             const days = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'];
@@ -713,10 +758,10 @@
 
         function displayTodaysPlan() {
             const today = new Date();
+            const currentWeek = getCurrentWeek();
             const dayOfWeek = today.getDay(); 
-            const week = 1; 
             const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const todayData = getWeekData(week)[dayNames[dayOfWeek]];
+            const todayData = getWeekData(currentWeek)[dayNames[dayOfWeek]];
             const container = document.getElementById('today-plan-container');
             document.getElementById('today-date').textContent = today.toLocaleDateString('vi-VN', { weekday: 'long', month: 'long', day: 'numeric' });
 
@@ -834,7 +879,18 @@
         new Chart(document.getElementById('macroChart').getContext('2d'), { type: 'doughnut', data: { labels: ['Carbohydrate (50%)', 'Protein (30%)', 'Chất béo (20%)'], datasets: [{ data: [50, 30, 20], backgroundColor: ['#3B82F6', '#10B981', '#EF4444'], borderColor: '#F8F7F4', borderWidth: 4, hoverOffset: 8 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: "'Be Vietnam Pro', sans-serif", size: 12 }, boxWidth: 20, padding: 20 } } }, cutout: '60%' } });
         new Chart(document.getElementById('longRunChart').getContext('2d'), { type: 'line', data: { labels: Array.from({length: 16}, (_, i) => `Tuần ${i + 1}`), datasets: [{ label: 'Quãng đường Chạy Dài (km)', data: runningData.longRunKm, fill: true, backgroundColor: 'rgba(74, 108, 111, 0.1)', borderColor: '#4A6C6F', tension: 0.3, pointBackgroundColor: '#4A6C6F', pointRadius: 4, }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Quãng đường (km)' } }, x: { title: { display: true, text: 'Tuần Luyện Tập' } } }, plugins: { legend: { display: false } } } });
 
-        renderSchedule(1);
+        // Khởi tạo với tuần hiện tại
+        const currentWeek = getCurrentWeek();
+        weekSelector.value = currentWeek;
+        renderSchedule(currentWeek);
+        
+        // Hiển thị tuần hiện tại trong header
+        document.getElementById('current-week-display').textContent = `Tuần ${currentWeek}`;
+        
+        // Hiển thị tiến độ
+        const progressPercentage = Math.round((currentWeek / 16) * 100);
+        document.getElementById('progress-display').textContent = `${currentWeek}/16 tuần (${progressPercentage}%)`;
+        
         displayTodaysPlan();
         navigateTo('dashboard');
 
